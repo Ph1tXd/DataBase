@@ -170,7 +170,7 @@ CREATE TABLE Payments (
 
 ```
 ### [dml.sql](dml.sql)
-```
+```postgresql
 -- Добавление пользователей
 INSERT INTO Users (name, email, role) VALUES
 ('Иван Иванов', 'ivan@example.com', 'student'),
@@ -216,3 +216,110 @@ INSERT INTO Payments (user_id, course_id, amount) VALUES
 INSERT INTO CourseHistory (course_id, title, description, author_id)
 VALUES (1, 'Основы SQL', 'Изучение базовых SQL-запросов', 3);
 ```
+1.Список студентов, записанных на курсы, и количество этих курсов (JOIN + GROUP BY + HAVING + ORDER BY)
+
+```sql
+SELECT u.name, COUNT(e.course_id) AS course_count
+FROM Users u
+JOIN Enrollments e ON u.id = e.user_id
+WHERE u.role = 'student'
+GROUP BY u.name
+HAVING COUNT(e.course_id) > 0
+ORDER BY course_count DESC;
+```
+Показывает самых активных студентов по количеству курсов.
+2.Преподаватели, у которых хотя бы один курс был оплачен(EXISTS + подзапрос)
+
+```sql
+SELECT DISTINCT u.id, u.name
+FROM Users u
+WHERE u.role = 'teacher'
+AND EXISTS (
+    SELECT 1
+    FROM Courses c
+    JOIN Payments p ON p.course_id = c.id
+    WHERE c.author_id = u.id
+);
+```
+Позволяет найти "продающих" преподавателей.
+3.Курсы, у которых средний платёж превышает 2000(JOIN + GROUP BY + HAVING)
+```sql
+SELECT c.title, ROUND(AVG(p.amount), 2) AS avg_amount
+FROM Courses c
+JOIN Payments p ON c.id = p.course_id
+GROUP BY c.title
+HAVING AVG(p.amount) > 2000;
+```
+Анализирует дорогие и востребованные курсы.
+4.Пользователи, не записанные ни на один курс(NOT EXISTS + подзапрос)
+```sql
+SELECT u.id, u.name
+FROM Users u
+WHERE u.role = 'student'
+AND NOT EXISTS (
+    SELECT 1 FROM Enrollments e WHERE e.user_id = u.id
+);
+```
+Выводит "пассивных" студентов.
+5.Уроки и количество заданий в них(LEFT JOIN + GROUP BY + ORDER BY)
+```sql
+SELECT l.title, COUNT(a.id) AS assignment_count
+FROM Lessons l
+LEFT JOIN Assignments a ON l.id = a.lesson_id
+GROUP BY l.title
+ORDER BY assignment_count DESC;
+```
+Оценка насыщенности уроков.
+6.ТОП-3 студента по среднему баллу за все задания(JOIN + GROUP BY + ORDER BY + LIMIT)
+```sql
+SELECT u.name, ROUND(AVG(s.grade), 2) AS avg_grade
+FROM Users u
+JOIN Submissions s ON u.id = s.user_id
+WHERE u.role = 'student'
+GROUP BY u.name
+ORDER BY avg_grade DESC
+LIMIT 3;
+```
+Кто учится лучше всех.
+7.Все задания, у которых оценка пользователя выше средней по всем работам(скалярный подзапрос + WHERE)
+```sql
+SELECT s.id, u.name, a.task_text, s.grade
+FROM Submissions s
+JOIN Users u ON s.user_id = u.id
+JOIN Assignments a ON s.assignment_id = a.id
+WHERE s.grade > (
+    SELECT AVG(grade) FROM Submissions
+);
+```
+Сильные работы, выше среднего уровня.
+8.Курсы и число оплат, отсортированные по убыванию(JOIN + GROUP BY + ORDER BY)
+```sql
+SELECT c.title, COUNT(p.id) AS payments_count
+FROM Courses c
+JOIN Payments p ON c.id = p.course_id
+GROUP BY c.title
+ORDER BY payments_count DESC;
+```
+Самые коммерчески успешные курсы.
+9.Все сдачи с порядковым номером сдачи по каждому студенту(окно RANK + PARTITION BY)
+```sql
+SELECT s.id, u.name, s.grade,
+       RANK() OVER (PARTITION BY s.user_id ORDER BY s.id) AS submission_number
+FROM Submissions s
+JOIN Users u ON s.user_id = u.id;
+```
+Показывает прогресс сдачи заданий по каждому студенту.
+10.Курсы, в которых участвуют все студенты с хотя бы одной сдачей(ALL + подзапрос + сложный оператор IN)
+```sql
+SELECT c.title
+FROM Courses c
+WHERE c.id IN (
+    SELECT e.course_id
+    FROM Enrollments e
+    WHERE e.user_id = ALL (
+        SELECT DISTINCT s.user_id
+        FROM Submissions s
+    )
+);
+```
+Показывает курсы, которые охватывают всех активных студентов.
