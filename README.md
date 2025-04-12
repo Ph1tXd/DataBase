@@ -10,3 +10,5 @@
 
 ## Физическая модель
 ![image](https://github.com/user-attachments/assets/04ae9a6c-b3ad-47e0-90ee-5c743cb41f16)
+
+### [ddl.sql](ddl.sql)
