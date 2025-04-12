@@ -15,6 +15,20 @@ CREATE TABLE Courses (
     FOREIGN KEY (author_id) REFERENCES Users(id)
 );
 
+-- Таблица истории изменений курсов (версионирование)
+CREATE TABLE CourseHistory (
+    id SERIAL PRIMARY KEY,
+    course_id INTEGER NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    description TEXT,
+    author_id INTEGER NOT NULL,
+    valid_from TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    valid_to TIMESTAMP,
+    is_current BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (course_id) REFERENCES Courses(id),
+    FOREIGN KEY (author_id) REFERENCES Users(id)
+);
+
 -- Таблица записей на курсы (связь многие-ко-многим между пользователями и курсами)
 CREATE TABLE Enrollments (
     id SERIAL PRIMARY KEY,
