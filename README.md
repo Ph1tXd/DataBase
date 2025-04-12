@@ -64,7 +64,8 @@
 - **Пользователи** отправляют **Решения** на **Домашние задания**.
 
 ## Логическая модель
-![image](https://github.com/user-attachments/assets/a7ffd53d-4ea6-4504-bfd3-344ae38c45cf)
+![image](https://github.com/user-attachments/assets/e0de10e6-d60e-46a2-b8b8-c56637354614)
+
 
 ### Описание логической модели
 Логическая модель включает основные сущности с их атрибутами и внешними ключами (FK), которые обеспечивают связь между таблицами. В таблицах реализованы связи между пользователями, курсами, уроками и оплатами. Каждая таблица содержит первичные ключи, а связи между таблицами реализуются через внешние ключи
@@ -79,16 +80,10 @@
 3.3NF (Третья нормальная форма) – отсутствуют транзитивные зависимости, все неключевые атрибуты зависят только от первичного ключа.
 
 ### Тип управления изменениями (SCD)
-Применён тип SCD Type 1 (перезапись):
-
-1.При изменении данных записи перезаписываются без сохранения истории
-
-2.Используется только поле payment_date или enrollment_date для регистрации момента создания
-
-3.Простая структура и высокая производительность — приоритет на актуальные данные
+В данной базе данных реализовано версионирование типа 2 (Type 2 – SCD) — полное сохранение истории изменений(CourseHistory).
 
 ## Физическая модель
-![image](https://github.com/user-attachments/assets/04ae9a6c-b3ad-47e0-90ee-5c743cb41f16)
+![image](https://github.com/user-attachments/assets/127c64d9-e9de-4242-b58f-5a9637a9c529)
 
 ### [ddl.sql](ddl.sql)
 ```postgresql
@@ -106,6 +101,20 @@ CREATE TABLE Courses (
     title VARCHAR(200) NOT NULL,
     description TEXT,
     author_id INTEGER NOT NULL,
+    FOREIGN KEY (author_id) REFERENCES Users(id)
+);
+
+-- Таблица истории изменений курсов (версионирование)
+CREATE TABLE CourseHistory (
+    id SERIAL PRIMARY KEY,
+    course_id INTEGER NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    description TEXT,
+    author_id INTEGER NOT NULL,
+    valid_from TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    valid_to TIMESTAMP,
+    is_current BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (course_id) REFERENCES Courses(id),
     FOREIGN KEY (author_id) REFERENCES Users(id)
 );
 
@@ -159,4 +168,51 @@ CREATE TABLE Payments (
     FOREIGN KEY (course_id) REFERENCES Courses(id)
 );
 
+```
+### [dml.sql](dml.sql)
+```
+-- Добавление пользователей
+INSERT INTO Users (name, email, role) VALUES
+('Иван Иванов', 'ivan@example.com', 'student'),
+('Мария Петрова', 'maria@example.com', 'student'),
+('Алексей Смирнов', 'alexey@example.com', 'teacher');
+
+-- Добавление курсов
+INSERT INTO Courses (title, description, author_id) VALUES
+('Введение в программирование', 'Курс для начинающих', 3),
+('Базы данных', 'Основы проектирования и SQL', 3);
+
+-- Добавление записей о зачислении
+INSERT INTO Enrollments (user_id, course_id) VALUES
+(1, 1),
+(2, 1),
+(1, 2);
+
+-- Добавление уроков
+INSERT INTO Lessons (course_id, title, content) VALUES
+(1, 'Переменные и типы данных', 'Контент урока по переменным'),
+(1, 'Условные операторы', 'Контент урока по if'),
+(2, 'Моделирование таблиц', 'Контент по нормализации');
+
+-- Добавление домашних заданий
+INSERT INTO Assignments (lesson_id, task_text) VALUES
+(1, 'Напишите программу, которая выводит ваше имя'),
+(2, 'Составьте условный блок для проверки возраста'),
+(3, 'Нарисуйте ER-диаграмму простой БД');
+
+-- Добавление решений студентов
+INSERT INTO Submissions (assignment_id, user_id, answer, grade) VALUES
+(1, 1, 'print("Иван")', 10),
+(2, 1, 'if age >= 18:', 9),
+(3, 1, 'ER-диаграмма — в приложении', 8),
+(1, 2, 'print("Мария")', 10);
+
+-- Добавление платежей
+INSERT INTO Payments (user_id, course_id, amount) VALUES
+(1, 1, 1999.00),
+(2, 1, 1999.00),
+(1, 2, 2499.00);
+
+INSERT INTO CourseHistory (course_id, title, description, author_id)
+VALUES (1, 'Основы SQL', 'Изучение базовых SQL-запросов', 3);
 ```
