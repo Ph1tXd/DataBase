@@ -39,3 +39,6 @@ INSERT INTO Payments (user_id, course_id, amount) VALUES
 (1, 1, 1999.00),
 (2, 1, 1999.00),
 (1, 2, 2499.00);
+
+INSERT INTO CourseHistory (course_id, title, description, author_id)
+VALUES (1, 'Основы SQL', 'Изучение базовых SQL-запросов', 3);
