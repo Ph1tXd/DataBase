@@ -216,6 +216,7 @@ INSERT INTO Payments (user_id, course_id, amount) VALUES
 INSERT INTO CourseHistory (course_id, title, description, author_id)
 VALUES (1, 'Основы SQL', 'Изучение базовых SQL-запросов', 3);
 ```
+
 1.Список студентов, записанных на курсы, и количество этих курсов (JOIN + GROUP BY + HAVING + ORDER BY)
 
 ```sql
@@ -228,6 +229,7 @@ HAVING COUNT(e.course_id) > 0
 ORDER BY course_count DESC;
 ```
 Показывает самых активных студентов по количеству курсов.
+
 2.Преподаватели, у которых хотя бы один курс был оплачен(EXISTS + подзапрос)
 
 ```sql
@@ -242,6 +244,7 @@ AND EXISTS (
 );
 ```
 Позволяет найти "продающих" преподавателей.
+
 3.Курсы, у которых средний платёж превышает 2000(JOIN + GROUP BY + HAVING)
 ```sql
 SELECT c.title, ROUND(AVG(p.amount), 2) AS avg_amount
@@ -251,6 +254,7 @@ GROUP BY c.title
 HAVING AVG(p.amount) > 2000;
 ```
 Анализирует дорогие и востребованные курсы.
+
 4.Пользователи, не записанные ни на один курс(NOT EXISTS + подзапрос)
 ```sql
 SELECT u.id, u.name
@@ -261,6 +265,7 @@ AND NOT EXISTS (
 );
 ```
 Выводит "пассивных" студентов.
+
 5.Уроки и количество заданий в них(LEFT JOIN + GROUP BY + ORDER BY)
 ```sql
 SELECT l.title, COUNT(a.id) AS assignment_count
@@ -270,6 +275,7 @@ GROUP BY l.title
 ORDER BY assignment_count DESC;
 ```
 Оценка насыщенности уроков.
+
 6.ТОП-3 студента по среднему баллу за все задания(JOIN + GROUP BY + ORDER BY + LIMIT)
 ```sql
 SELECT u.name, ROUND(AVG(s.grade), 2) AS avg_grade
@@ -281,6 +287,7 @@ ORDER BY avg_grade DESC
 LIMIT 3;
 ```
 Кто учится лучше всех.
+
 7.Все задания, у которых оценка пользователя выше средней по всем работам(скалярный подзапрос + WHERE)
 ```sql
 SELECT s.id, u.name, a.task_text, s.grade
@@ -292,6 +299,7 @@ WHERE s.grade > (
 );
 ```
 Сильные работы, выше среднего уровня.
+
 8.Курсы и число оплат, отсортированные по убыванию(JOIN + GROUP BY + ORDER BY)
 ```sql
 SELECT c.title, COUNT(p.id) AS payments_count
@@ -301,6 +309,7 @@ GROUP BY c.title
 ORDER BY payments_count DESC;
 ```
 Самые коммерчески успешные курсы.
+
 9.Все сдачи с порядковым номером сдачи по каждому студенту(окно RANK + PARTITION BY)
 ```sql
 SELECT s.id, u.name, s.grade,
@@ -309,6 +318,7 @@ FROM Submissions s
 JOIN Users u ON s.user_id = u.id;
 ```
 Показывает прогресс сдачи заданий по каждому студенту.
+
 10.Курсы, в которых участвуют все студенты с хотя бы одной сдачей(ALL + подзапрос + сложный оператор IN)
 ```sql
 SELECT c.title
