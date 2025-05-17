@@ -106,7 +106,7 @@
 ### [ddl.sql](ddl.sql)
 ```postgresql
 -- Таблица пользователей
-CREATE TABLE Users (
+CREATE TABLE IF NOT EXISTS Users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
@@ -114,7 +114,7 @@ CREATE TABLE Users (
 );
 
 -- Таблица курсов
-CREATE TABLE Courses (
+CREATE TABLE IF NOT EXISTS Courses (
     id SERIAL PRIMARY KEY,
     title VARCHAR(200) NOT NULL,
     description TEXT,
@@ -123,7 +123,7 @@ CREATE TABLE Courses (
 );
 
 -- Таблица истории изменений курсов (версионирование)
-CREATE TABLE CourseHistory (
+CREATE TABLE IF NOT EXISTS CourseHistory (
     id SERIAL PRIMARY KEY,
     course_id INTEGER NOT NULL,
     title VARCHAR(200) NOT NULL,
@@ -137,18 +137,18 @@ CREATE TABLE CourseHistory (
 );
 
 -- Таблица записей на курсы (связь многие-ко-многим между пользователями и курсами)
-CREATE TABLE Enrollments (
+CREATE TABLE IF NOT EXISTS Enrollments (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL,
     course_id INTEGER NOT NULL,
     enrollment_date DATE DEFAULT CURRENT_DATE,
     FOREIGN KEY (user_id) REFERENCES Users(id),
     FOREIGN KEY (course_id) REFERENCES Courses(id),
-    UNIQUE (user_id, course_id) -- предотвращает повторные записи одного пользователя на один курс
+    UNIQUE (user_id, course_id)
 );
 
 -- Таблица уроков
-CREATE TABLE Lessons (
+CREATE TABLE IF NOT EXISTS Lessons (
     id SERIAL PRIMARY KEY,
     course_id INTEGER NOT NULL,
     title VARCHAR(200) NOT NULL,
@@ -157,7 +157,7 @@ CREATE TABLE Lessons (
 );
 
 -- Таблица заданий
-CREATE TABLE Assignments (
+CREATE TABLE IF NOT EXISTS Assignments (
     id SERIAL PRIMARY KEY,
     lesson_id INTEGER NOT NULL,
     task_text TEXT NOT NULL,
@@ -165,7 +165,7 @@ CREATE TABLE Assignments (
 );
 
 -- Таблица сдачи заданий
-CREATE TABLE Submissions (
+CREATE TABLE IF NOT EXISTS Submissions (
     id SERIAL PRIMARY KEY,
     assignment_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
@@ -176,7 +176,7 @@ CREATE TABLE Submissions (
 );
 
 -- Таблица платежей
-CREATE TABLE Payments (
+CREATE TABLE IF NOT EXISTS Payments (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL,
     course_id INTEGER NOT NULL,
@@ -185,6 +185,7 @@ CREATE TABLE Payments (
     FOREIGN KEY (user_id) REFERENCES Users(id),
     FOREIGN KEY (course_id) REFERENCES Courses(id)
 );
+
 
 ```
 ### [dml.sql](dml.sql)
