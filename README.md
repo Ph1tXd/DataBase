@@ -447,20 +447,21 @@ JOIN Users u ON s.user_id = u.id;
 ```
 Показывает прогресс сдачи заданий по каждому студенту.
 
-10.Курсы, в которых участвуют все студенты с хотя бы одной сдачей(ALL + подзапрос + сложный оператор IN)
+10.Курсы, в которых участвуют все студенты с хотя бы одной сдачей(подзапрос + сложный оператор IN)
 ```sql
 SELECT c.title
 FROM Courses c
 WHERE c.id IN (
     SELECT e.course_id
     FROM Enrollments e
-    WHERE e.user_id = ALL (
+    WHERE e.user_id IN (
         SELECT DISTINCT s.user_id
         FROM Submissions s
     )
 );
 ```
 Показывает курсы, которые охватывают всех активных студентов.
+
 11.Найти пользователей, у которых все оценки выше 80(ALL)
 ```sql
 SELECT u.name
@@ -471,5 +472,6 @@ WHERE 80 < ALL (
     WHERE s.user_id = u.id
 );
 ```
+
 Показывает пользователей, которых все оценки выше 80
 
