@@ -461,3 +461,15 @@ WHERE c.id IN (
 );
 ```
 Показывает курсы, которые охватывают всех активных студентов.
+11.Найти пользователей, у которых все оценки выше 80(ALL)
+```sql
+SELECT u.name
+FROM Users u
+WHERE 80 < ALL (
+    SELECT s.grade
+    FROM Submissions s
+    WHERE s.user_id = u.id
+);
+```
+Показывает пользователей, которых все оценки выше 80
+
