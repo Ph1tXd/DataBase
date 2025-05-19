@@ -55,7 +55,8 @@
 ##
 # Концептуальная модель
 ##
-![image](https://github.com/user-attachments/assets/66b2c187-b508-4d1c-a371-ebaa5898dc63)
+![image](https://github.com/user-attachments/assets/ac67ada7-01eb-421a-a27d-00085267dfed)
+
 
 - **Пользователи** записываются на один или несколько **Курсов** через таблицу **Записей**.
 - **Пользователи** совершают **Оплаты** за **Курсы**.
